@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:camera/camera.dart';
-import 'package:hidden_camera_detector/app/controllers/home_controller.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:hidden_camera_detector/app/ui/pages/scanner/ir_detector/ir_detector_screen.dart';
 import 'package:hidden_camera_detector/app/ui/pages/scanner/magnetic_detector/magnetic_detector_screen.dart';
 import 'package:hidden_camera_detector/app/ui/pages/scanner/rf_scanner_view.dart';
 import 'package:hidden_camera_detector/app/ui/theme/colors.dart';
 
 class HomeScreen extends StatelessWidget {
-  final HomeController controller = Get.put(HomeController());
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +15,6 @@ class HomeScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
-          SliverToBoxAdapter(
-            child: _buildCameraPreview(),
-          ),
-          _buildStatusSection(),
           _buildDetectorGrid(),
         ],
       ),
@@ -31,15 +26,11 @@ class HomeScreen extends StatelessWidget {
       expandedHeight: 120,
       floating: true,
       pinned: true,
-      title: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            'Hidden Camera Detector',
-            style: Theme.of(Get.context!).textTheme.displayLarge,
-          ),
-        ],
-      ),
+      leading: SizedBox.expand(),
+      // title: Text(
+      //   'Hidden Camera Detector',
+      //   style: Theme.of(Get.context!).textTheme.displayLarge,
+      // ),
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: false,
         expandedTitleScale: 1,
@@ -59,108 +50,27 @@ class HomeScreen extends StatelessWidget {
               colors: [kPrimaryButtonColor.withOpacity(0.5), kWhite],
             ),
           ),
+          child: Center(
+            child: Text(
+              'Hidden Camera Detector',
+              style: Theme.of(Get.context!).textTheme.displayLarge,
+            ),
+          ),
         ),
       ),
       actions: [
-        IconButton(
-          icon: Icon(Icons.help_outline, color: Colors.black),
-          onPressed: _showHelp,
+        Padding(
+          padding: const EdgeInsets.only(top: 23),
+          child: IconButton(
+            icon: Icon(Icons.help_outline, color: Colors.black),
+            onPressed: _showHelp,
+          ),
         ),
         // IconButton(
         //   icon: Icon(Icons.settings),
         //   onPressed: () => Get.toNamed('/settings'),
         // ),
       ],
-    );
-  }
-
-  Widget _buildCameraPreview() {
-    return Container(
-      height: 200,
-      margin: EdgeInsets.all(16),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Obx(() {
-                if (!controller.isCameraInitialized.value) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                return CameraPreview(controller.cameraController.value!);
-              }),
-              Positioned(
-                bottom: 16,
-                right: 16,
-                child: Row(
-                  children: [
-                    FloatingActionButton.small(
-                      heroTag: 'flash',
-                      child: Icon(Icons.flash_on),
-                      onPressed: () {
-                        
-                        // Toggle flash
-                      },
-                    ),
-                    SizedBox(width: 8),
-                    FloatingActionButton.small(
-                      heroTag: 'flip',
-                      child: Icon(Icons.flip_camera_ios),
-                      onPressed: () {
-                        // Flip camera
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusSection() {
-    return SliverToBoxAdapter(
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16),
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.green,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Obx(() => Text(
-                          controller.currentStatus.value,
-                          style: TextStyle(fontSize: 16),
-                        )),
-                  ],
-                ),
-                SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: 0.7,
-                  backgroundColor: Colors.blue.shade100,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -182,19 +92,19 @@ class HomeScreen extends StatelessWidget {
             description: 'Detect radio frequency signals from hidden devices',
             onTap: () => Get.to(() => RFDetectorScreen()),
           ),
-          _buildDetectorCard(
-            title: 'Magnetic Field',
-            icon: Icons.compass_calibration,
-            color: Colors.green,
-            description: 'Detect magnetic fields from electronic devices',
-            onTap: () => Get.to(() => MagneticDetectorScreen()),
-          ),
+          // _buildDetectorCard(
+          //   title: 'Magnetic Field',
+          //   icon: Icons.compass_calibration,
+          //   color: Colors.green,
+          //   description: 'Detect magnetic fields from electronic devices',
+          //   onTap: () => Get.to(() => MagneticDetectorScreen()),
+          // ),
           _buildDetectorCard(
             title: 'IR Camera',
             icon: Icons.camera,
             color: Colors.orange,
             description: 'Detect infrared light from hidden cameras',
-            onTap: () => Get.to(() => IRDetectorScreen()),
+            onTap: () => Get.to(() => EnhancedIRDetectorScreen()),
           ),
           _buildStatsCard(),
         ]),

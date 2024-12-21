@@ -1,151 +1,143 @@
-import 'package:hidden_camera_detector/app/ui/utils/app_exports.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:camera/camera.dart';
+import 'package:hidden_camera_detector/app/ui/pages/scanner/ir_detector/ir_detector_screen.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 class IRDetectorController extends GetxController {
-  Rx<CameraController?> cameraController = Rx<CameraController?>(null);
-  RxBool isNightModeEnabled = false.obs;
-  RxBool isIRFilterEnabled = false.obs;
-  RxBool isAnalysisEnabled = false.obs;
-  RxDouble sensitivity = 50.0.obs;
-  RxString detectionStatus = 'Ready'.obs;
-  RxDouble detectionProgress = 0.0.obs;
-
-  List<CameraDescription> cameras = [];
-  int currentCameraIndex = 0;
-  bool isStreaming = false;
+  CameraController? cameraController;
+  final RxDouble irStrength = 0.0.obs;
+  final RxBool isScanning = false.obs;
+  final RxList<IRReading> readings = <IRReading>[].obs;
+  final RxBool hasCameraPermission = false.obs;
+  final RxBool isInitialized = false.obs;
+  final RxDouble phoneRotationX = 0.0.obs;
+  final RxDouble phoneRotationY = 0.0.obs;
 
   @override
   void onInit() {
     super.onInit();
-    _initializeCamera();
+    initCamera();
+    initSensors();
   }
 
-  Future<void> _initializeCamera() async {
-    try {
-      cameras = await availableCameras();
-      if (cameras.isNotEmpty) {
-        await _setupCamera(0);
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to initialize camera: $e');
-    }
+  @override
+  void onClose() {
+    cameraController?.dispose();
+    super.onClose();
   }
 
-  Future<void> _setupCamera(int index) async {
-    // Stop any existing stream before disposing
-    await _stopImageProcessing();
-    
-    if (cameraController.value != null) {
-      await cameraController.value!.dispose();
-    }
+  Future<void> initCamera() async {
+    final cameras = await availableCameras();
+    if (cameras.isEmpty) return;
 
-    cameraController.value = CameraController(
-      cameras[index],
-      ResolutionPreset.high,
+    cameraController = CameraController(
+      cameras.first,
+      ResolutionPreset.medium,
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.yuv420,
     );
 
     try {
-      await cameraController.value!.initialize();
-      currentCameraIndex = index;
-      // Only start processing if analysis is enabled
-      if (isAnalysisEnabled.value) {
-        await _startImageProcessing();
+      await cameraController!.initialize();
+      isInitialized.value = true;
+      hasCameraPermission.value = true;
+    } catch (e) {
+      print('Error initializing camera: $e');
+    }
+  }
+
+  void initSensors() {
+    gyroscopeEvents.listen((GyroscopeEvent event) {
+      phoneRotationX.value = event.x;
+      phoneRotationY.value = event.y;
+    });
+  }
+
+  void startScanning() async {
+    if (!isInitialized.value) return;
+
+    isScanning.value = true;
+    await cameraController!.startImageStream((image) {
+      if (!isScanning.value) return;
+      _analyzeImageForIR(image);
+    });
+  }
+
+  void stopScanning() {
+    isScanning.value = false;
+    cameraController?.stopImageStream();
+  }
+
+  void _analyzeImageForIR(CameraImage image) {
+    try {
+      // Analyze center portion of the image for IR light
+      final int width = image.width;
+      final int height = image.height;
+      final bytes = image.planes[0].bytes;
+
+      // Calculate average brightness in center region
+      int totalBrightness = 0;
+      int samplesCount = 0;
+
+      // Analyze center region (middle 20% of the image)
+      final startX = (width * 0.4).round();
+      final endX = (width * 0.6).round();
+      final startY = (height * 0.4).round();
+      final endY = (height * 0.6).round();
+
+      for (int y = startY; y < endY; y++) {
+        for (int x = startX; x < endX; x++) {
+          final pixel = bytes[y * width + x];
+          totalBrightness += pixel;
+          samplesCount++;
+        }
+      }
+
+      final averageBrightness = totalBrightness / samplesCount;
+      // Convert to 0-100 scale
+      final normalizedStrength =
+          ((averageBrightness - 50) / 155 * 100).clamp(0.0, 100.0);
+
+      irStrength.value = normalizedStrength;
+      if (normalizedStrength > 70) {
+        // Changed threshold to 70
+        readings.insert(
+            0,
+            IRReading(
+              // Insert at beginning for newest first
+              strength: normalizedStrength,
+              timestamp: DateTime.now(),
+              rotation: Vector2(phoneRotationX.value, phoneRotationY.value),
+            ));
+
+        // Keep only last 10 significant readings
+        if (readings.length > 10) {
+          readings.removeLast();
+        }
+
+        Get.snackbar(
+          'High IR Detected',
+          'Possible hidden camera nearby!',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: Duration(seconds: 2),
+        );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Camera initialization failed: $e');
+      print('Error analyzing image: $e');
     }
   }
+}
 
-  Future<void> _startImageProcessing() async {
-    if (cameraController.value == null || isStreaming) return;
+class IRReading {
+  final double strength;
+  final DateTime timestamp;
+  final Vector2 rotation;
 
-    try {
-      isStreaming = true;
-      await cameraController.value!.startImageStream((image) {
-        if (isAnalysisEnabled.value) {
-          _processImage(image);
-        }
-      });
-    } catch (e) {
-      isStreaming = false;
-      Get.snackbar('Error', 'Failed to start image stream: $e');
-    }
-  }
-
-  Future<void> _stopImageProcessing() async {
-    if (cameraController.value == null || !isStreaming) return;
-
-    try {
-      await cameraController.value!.stopImageStream();
-      isStreaming = false;
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to stop image stream: $e');
-    }
-  }
-
-  void _processImage(CameraImage image) {
-    // Implement IR detection algorithm here
-    // This is a simplified example
-    int irPixels = 0;
-    int totalPixels = image.width * image.height;
-
-    // Simulate IR detection
-    detectionProgress.value = irPixels / totalPixels;
-
-    if (detectionProgress.value > sensitivity.value / 100) {
-      detectionStatus.value = 'IR Source Detected!';
-    } else {
-      detectionStatus.value = 'Scanning...';
-    }
-  }
-
-  Future<void> switchCamera() async {
-    final newIndex = (currentCameraIndex + 1) % cameras.length;
-    await _setupCamera(newIndex);
-  }
-
-  Future<void> toggleFlash() async {
-    if (cameraController.value == null) return;
-
-    try {
-      final newMode = cameraController.value!.value.flashMode == FlashMode.torch
-          ? FlashMode.off
-          : FlashMode.torch;
-
-      await cameraController.value!.setFlashMode(newMode);
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to toggle flash: $e');
-    }
-  }
-
-  void toggleNightMode() {
-    isNightModeEnabled.value = !isNightModeEnabled.value;
-    // Implement night mode image processing
-  }
-
-  void toggleIRFilter() {
-    isIRFilterEnabled.value = !isIRFilterEnabled.value;
-    // Implement IR filter processing
-  }
-
-  Future<void> toggleAnalysis() async {
-    isAnalysisEnabled.value = !isAnalysisEnabled.value;
-    if (isAnalysisEnabled.value) {
-      await _startImageProcessing();
-    } else {
-      await _stopImageProcessing();
-    }
-  }
-
-  void setSensitivity(double value) {
-    sensitivity.value = value;
-  }
-
-  @override
-  void onClose() {
-    _stopImageProcessing();
-    cameraController.value?.dispose();
-    super.onClose();
-  }
+  IRReading({
+    required this.strength,
+    required this.timestamp,
+    required this.rotation,
+  });
 }

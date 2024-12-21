@@ -94,7 +94,7 @@ class LoginView extends StatelessWidget {
     if (_formKey.currentState!.validate()) {
       _authController.login(
           _emailController.text.trim(), _passwordController.text.trim());
-      Get.toNamed(AppRoutes.HOME);
+      Get.toNamed(AppRoutes.BOTTOM_NAVBAR);
     }
   }
 }
