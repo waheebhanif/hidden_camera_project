@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "674391033038",
+    "project_id": "hidden-camera-detector-caac1",
+    "storage_bucket": "hidden-camera-detector-caac1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674391033038:android:57b07d08ce2c78f06dbc9f",
+        "android_client_info": {
+          "package_name": "com.example.hidden_camera_detector"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANkLLocFTu_COhKGtVA7rqjY_mQ43dzf8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
