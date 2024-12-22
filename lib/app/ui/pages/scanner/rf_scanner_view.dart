@@ -1,5 +1,5 @@
-
 import 'package:hidden_camera_detector/app/ui/pages/scanner/rf_scanner_controller.dart';
+import 'package:hidden_camera_detector/app/ui/theme/colors.dart';
 import 'package:hidden_camera_detector/app/ui/utils/app_exports.dart';
 
 class RFDetectorScreen extends StatelessWidget {
@@ -32,6 +32,7 @@ class RFDetectorScreen extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16),
       child: Card(
+        elevation: 0,
         child: Padding(
           padding: EdgeInsets.all(16),
           child: Column(
@@ -73,6 +74,7 @@ class RFDetectorScreen extends StatelessWidget {
   Widget _buildFrequencyBands() {
     return Expanded(
       child: Card(
+        elevation: 0,
         margin: EdgeInsets.all(16),
         child: ListView.builder(
           itemCount: controller.frequencyBands.length,
@@ -99,23 +101,39 @@ class RFDetectorScreen extends StatelessWidget {
         children: [
           Expanded(
             child: Obx(() => ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPrimaryButtonColor,
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
                   onPressed: controller.isScanning.value
                       ? null
                       : () => controller.startScan(),
-                  icon: Icon(Icons.radar),
-                  label: Text(controller.isScanning.value
-                      ? 'Scanning...'
-                      : 'Start Scan'),
+                  icon: Icon(Icons.radar, color: Colors.white),
+                  label: Text(
+                    controller.isScanning.value ? 'Scanning...' : 'Start Scan',
+                    style: Theme.of(Get.context!)
+                        .textTheme
+                        .displaySmall!
+                        .copyWith(
+                            color: Colors.white, fontWeight: FontWeight.w500),
+                  ),
                 )),
           ),
           SizedBox(width: 16),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () => controller.resetScan(),
-              icon: Icon(Icons.refresh),
-              label: Text('Reset'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
+                backgroundColor: kPrimaryButtonColor,
+                minimumSize: const Size(double.infinity, 48),
+              ),
+              onPressed: () => controller.resetScan(),
+              icon: Icon(Icons.refresh, color: Colors.white),
+              label: Text(
+                'Reset',
+                style: Theme.of(Get.context!)
+                    .textTheme
+                    .displaySmall!
+                    .copyWith(color: Colors.white, fontWeight: FontWeight.w500),
               ),
             ),
           ),

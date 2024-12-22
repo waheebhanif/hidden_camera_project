@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hidden_camera_detector/app/controllers/auth_controller.dart';
 import 'package:hidden_camera_detector/app/routes/app_routes.dart';
+import 'package:hidden_camera_detector/app/ui/global_widgets/custom_text_field.dart';
 import 'package:hidden_camera_detector/app/ui/pages/Account/account_action_dialog.dart';
 import 'package:hidden_camera_detector/app/ui/theme/colors.dart';
 import 'package:hidden_camera_detector/app/ui/theme/size_config.dart';
 
 class AccountScreen extends StatelessWidget {
   final AuthController _authController = Get.find();
+  TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           'Account',
@@ -198,9 +201,11 @@ class AccountScreen extends StatelessWidget {
                               color: kRedColor,
                             ),
                             actionButtonText: 'Delete',
-                            onAction: () {
+                            onAction: () async {
                               // Add delete account logic here
+                              // In your UI
                               Navigator.of(context).pop();
+                              _passwordDialog(context);
                             },
                           );
                         },
@@ -296,6 +301,35 @@ class AccountScreen extends StatelessWidget {
         iconAsset: iconAsset,
         actionButtonText: actionButtonText,
         onAction: onAction,
+      ),
+    );
+  }
+
+  void _passwordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: const Text('Enter your password'),
+        content: CustomTextField(
+          controller: passwordController,
+          hintText: "Enter Password",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _authController.deleteAccount(passwordController.text);
+              Navigator.of(context).pop();
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
       ),
     );
   }

@@ -7,13 +7,15 @@ import 'package:hidden_camera_detector/app/ui/utils/app_exports.dart';
 
 class PersonalInformationPage extends StatelessWidget {
   final AuthController _authController = Get.find();
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController currentPasswordController =
       TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    nameController.text = _authController.userName.value;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: CustomAppBar(
@@ -26,87 +28,87 @@ class PersonalInformationPage extends StatelessWidget {
             ),
       ),
       body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Stack(
-              //   children: [
-              //     Container(
-              //       margin: const EdgeInsets.only(top: 24),
-              //       padding: const EdgeInsets.all(3),
-              //       decoration: BoxDecoration(
-              //         color: kGray,
-              //         borderRadius: BorderRadius.circular(100),
-              //       ),
-              //       child: const CircleAvatar(
-              //         radius: 54,
-              //         backgroundColor: kScaffoldBackgroundColor,
-              //         child: CircleAvatar(
-              //           radius: 50,
-              //           backgroundImage: AssetImage(Assets.imageCompanyRecipe),
-              //         ),
-              //       ),
-              //     ),
-              //     Positioned(
-              //       right: 2,
-              //       bottom: 0,
-              //       child: InkWell(
-              //         onTap: () {},
-              //         child: SvgPicture.asset(
-              //           Assets.iconsEdit,
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              SizedBox(height: getProportionateScreenHeight(32)),
-              Text(
-                'Email',
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Name',
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            CustomTextField(
+              controller: nameController,
+              prefixIcon: Icon(
+                Icons.person,
+                color: kPrimaryTextColor,
               ),
-              CustomTextField(
-                prefixIcon: Icon(
-                  Icons.email,
-                  color: kPrimaryTextColor,
-                ),
-                hintText: _authController.user.value?.email ?? "",
-                controller: emailController,
-                readOnly: true,
+              hintText: _authController.userName.value,
+            ),
+            SizedBox(height: getProportionateScreenHeight(32)),
+            Text(
+              'Email',
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            CustomTextField(
+              controller: TextEditingController(),
+              prefixIcon: Icon(
+                Icons.email,
+                color: kPrimaryButtonColor,
               ),
-              SizedBox(height: getProportionateScreenHeight(32)),
-              Text(
-                'Change Password',
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              CustomTextField(
-                hintText: 'Current Password',
-                controller: currentPasswordController,
-              ),
+              hintText: _authController.user.value?.email ?? "",
+              readOnly: true,
+            ),
+            SizedBox(height: getProportionateScreenHeight(32)),
+            Text(
+              'Change Password',
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            CustomTextField(
+              hintText: 'Current Password',
+              controller: currentPasswordController,
+              obscureText: true,
+            ),
+            CustomTextField(
+              hintText: 'New Password',
+              controller: newPasswordController,
+              obscureText: true,
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: () async {
+                String newName = nameController.text.trim();
+                String currentPassword = currentPasswordController.text.trim();
+                String newPassword = newPasswordController.text.trim();
 
-              CustomTextField(
-                hintText: 'New Password',
-                controller: newPasswordController,
+                if (newName.isNotEmpty) {
+                  await _authController.updateName(newName);
+                }
+                if (currentPassword.isNotEmpty && newPassword.isNotEmpty) {
+                  await _authController.updatePassword(
+                      currentPassword, newPassword);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kPrimaryButtonColor,
+                minimumSize: const Size(double.infinity, 48),
               ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kPrimaryButtonColor,
-                  minimumSize: const Size(double.infinity, 48),
-                ),
-                child: Text(
-                  'Update',
-                  style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.w500),
-                ),
+              child: Text(
+                'Update',
+                style: Theme.of(context)
+                    .textTheme
+                    .displaySmall!
+                    .copyWith(color: Colors.white, fontWeight: FontWeight.w500),
               ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

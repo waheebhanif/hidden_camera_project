@@ -3,6 +3,8 @@ import 'package:hidden_camera_detector/app/bindings/home_binding.dart';
 import 'package:hidden_camera_detector/app/ui/global_widgets/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:hidden_camera_detector/app/ui/global_widgets/bottom_nav_bar/bottom_nav_binding.dart';
 import 'package:hidden_camera_detector/app/ui/pages/Account/personal_information_page.dart';
+import 'package:hidden_camera_detector/app/ui/pages/Account/privacy_policy_page.dart';
+import 'package:hidden_camera_detector/app/ui/pages/Account/terms_and_conditions_page.dart';
 import 'package:hidden_camera_detector/app/ui/pages/home_page/home_page.dart';
 import 'package:hidden_camera_detector/app/ui/pages/login/login_binding.dart';
 import 'package:hidden_camera_detector/app/ui/pages/login/login_view.dart';
@@ -66,6 +68,16 @@ class AppPages {
       page: () => PersonalInformationPage(),
       transition: _defaultTransition,
       binding: LoginBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.TERMS_AND_CONDITIONS,
+      page: () => TermsAndConditionsPage(),
+      transition: _defaultTransition,
+    ),
+    GetPage(
+      name: AppRoutes.PRIVACY_POLICY,
+      page: () => PrivacyPolicyPage(),
+      transition: _defaultTransition,
     ),
   ];
 }

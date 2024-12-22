@@ -5,6 +5,7 @@ import 'package:hidden_camera_detector/app/routes/app_routes.dart';
 import 'package:hidden_camera_detector/app/ui/global_widgets/custom_text_field.dart';
 import 'package:hidden_camera_detector/app/ui/theme/colors.dart';
 import 'package:hidden_camera_detector/app/ui/theme/size_config.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LoginView extends StatelessWidget {
   final AuthController _authController = Get.find();
@@ -49,7 +50,10 @@ class LoginView extends StatelessWidget {
               SizedBox(height: 24),
               Obx(
                 () => _authController.isLoading.value
-                    ? CircularProgressIndicator()
+                    ? LoadingAnimationWidget.beat(
+              color: kPrimaryButtonColor,
+              size: 50,
+            )
                     : ElevatedButton(
                         onPressed: _login,
                         style: ElevatedButton.styleFrom(
@@ -94,7 +98,6 @@ class LoginView extends StatelessWidget {
     if (_formKey.currentState!.validate()) {
       _authController.login(
           _emailController.text.trim(), _passwordController.text.trim());
-      Get.toNamed(AppRoutes.BOTTOM_NAVBAR);
     }
   }
 }

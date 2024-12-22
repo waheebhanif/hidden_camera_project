@@ -1,6 +1,7 @@
 import 'package:hidden_camera_detector/app/ui/pages/scanner/ir_detector/ir_detector_controller.dart';
 import 'package:hidden_camera_detector/app/ui/theme/colors.dart';
 import 'package:hidden_camera_detector/app/ui/utils/app_exports.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class EnhancedIRDetectorScreen extends StatelessWidget {
   final controller = Get.put(IRDetectorController());
@@ -78,7 +79,10 @@ class EnhancedIRDetectorScreen extends StatelessWidget {
           height: Get.height * 0.4,
           color: Colors.black,
           child: Center(
-            child: CircularProgressIndicator(),
+            child: LoadingAnimationWidget.beat(
+              color: kPrimaryButtonColor,
+              size: 50,
+            ),
           ),
         );
       }

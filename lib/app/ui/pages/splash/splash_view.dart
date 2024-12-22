@@ -51,7 +51,7 @@ class _SplashViewState extends State<SplashView> {
             ),
             SizedBox(height: 20),
             LoadingAnimationWidget.beat(
-              color: kRedColor,
+              color: kPrimaryButtonColor,
               size: 50,
             ),
           ],
