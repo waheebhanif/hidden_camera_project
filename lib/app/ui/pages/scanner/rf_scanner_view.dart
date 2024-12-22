@@ -1,3 +1,4 @@
+import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:hidden_camera_detector/app/ui/pages/scanner/rf_scanner_controller.dart';
 import 'package:hidden_camera_detector/app/ui/theme/colors.dart';
 import 'package:hidden_camera_detector/app/ui/utils/app_exports.dart';
