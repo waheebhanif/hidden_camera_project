@@ -37,6 +37,7 @@ dependencies:
   wifi_scan: ^0.4.1+1
   dart_ping: ^9.0.1
   ping_discover_network_forked: ^0.0.1
+  flutter_launcher_icons: ^0.14.2
   
 dev_dependencies:
   build_runner: 

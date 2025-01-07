@@ -100,7 +100,7 @@ class IRDetectorController extends GetxController {
       final normalizedStrength =
           ((averageBrightness - 50) / 155 * 100).clamp(0.0, 100.0);
       irStrength.value = normalizedStrength;
-      if (normalizedStrength > 30) {
+      if (normalizedStrength > 40) {
         readings.insert(
             0,
             IRReading(
@@ -109,7 +109,7 @@ class IRDetectorController extends GetxController {
               rotation: Vector2(phoneRotationX.value, phoneRotationY.value),
             ));
 
-        if (readings.length > 50) {
+        if (readings.length > 10) {
           readings.removeLast();
         }
 
