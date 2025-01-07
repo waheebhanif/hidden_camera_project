@@ -4,6 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:hidden_camera_detector/app/ui/pages/scanner/ir_detector/ir_detector_screen.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
+import 'package:audioplayers/audioplayers.dart';
+
 class IRDetectorController extends GetxController {
   CameraController? cameraController;
   final RxDouble irStrength = 0.0.obs;
@@ -13,6 +15,8 @@ class IRDetectorController extends GetxController {
   final RxBool isInitialized = false.obs;
   final RxDouble phoneRotationX = 0.0.obs;
   final RxDouble phoneRotationY = 0.0.obs;
+
+  final AudioPlayer audioPlayer = AudioPlayer(); // Audio player instance
 
   @override
   void onInit() {
@@ -24,6 +28,7 @@ class IRDetectorController extends GetxController {
   @override
   void onClose() {
     cameraController?.dispose();
+    audioPlayer.dispose(); // Dispose audio player
     super.onClose();
   }
 
@@ -69,18 +74,15 @@ class IRDetectorController extends GetxController {
     cameraController?.stopImageStream();
   }
 
-  void _analyzeImageForIR(CameraImage image) {
+  void _analyzeImageForIR(CameraImage image) async {
     try {
-      // Analyze center portion of the image for IR light
       final int width = image.width;
       final int height = image.height;
       final bytes = image.planes[0].bytes;
 
-      // Calculate average brightness in center region
       int totalBrightness = 0;
       int samplesCount = 0;
 
-      // Analyze center region (middle 20% of the image)
       final startX = (width * 0.4).round();
       final endX = (width * 0.6).round();
       final startY = (height * 0.4).round();
@@ -95,34 +97,32 @@ class IRDetectorController extends GetxController {
       }
 
       final averageBrightness = totalBrightness / samplesCount;
-      // Convert to 0-100 scale
       final normalizedStrength =
           ((averageBrightness - 50) / 155 * 100).clamp(0.0, 100.0);
-
       irStrength.value = normalizedStrength;
-      if (normalizedStrength > 70) {
-        // Changed threshold to 70
+      if (normalizedStrength > 30) {
         readings.insert(
             0,
             IRReading(
-              // Insert at beginning for newest first
               strength: normalizedStrength,
               timestamp: DateTime.now(),
               rotation: Vector2(phoneRotationX.value, phoneRotationY.value),
             ));
 
-        // Keep only last 10 significant readings
-        if (readings.length > 10) {
+        if (readings.length > 50) {
           readings.removeLast();
         }
 
-        Get.snackbar(
-          'High IR Detected',
-          'Possible hidden camera nearby!',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          duration: Duration(seconds: 2),
-        );
+        // Play sound when a hidden camera is detected
+        await audioPlayer.play(AssetSource('sound/alert.mp3'));
+
+        // Get.snackbar(
+        //   'High IR Detected',
+        //   'Possible hidden camera nearby!',
+        //   backgroundColor: Colors.red,
+        //   colorText: Colors.white,
+        //   duration: Duration(seconds: 2),
+        // );
       }
     } catch (e) {
       print('Error analyzing image: $e');

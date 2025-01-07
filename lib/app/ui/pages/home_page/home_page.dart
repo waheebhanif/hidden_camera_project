@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hidden_camera_detector/app/ui/pages/ip_scanner/ip_scanner_screen.dart';
 import 'package:hidden_camera_detector/app/ui/pages/scanner/ir_detector/ir_detector_screen.dart';
 import 'package:hidden_camera_detector/app/ui/pages/scanner/rf_scanner_view.dart';
 
@@ -174,7 +175,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.8,
+          childAspectRatio: 0.73,
         ),
         delegate: SliverChildListDelegate([
           _buildDetectorCard(
@@ -192,6 +193,13 @@ class HomeScreen extends StatelessWidget {
             description: 'Detect infrared light',
             // features: ['Night vision', 'LED detection'],
             onTap: () => Get.to(() => EnhancedIRDetectorScreen()),
+          ),
+          _buildDetectorCard(
+            title: 'Network Scanner',
+            icon: Icons.network_check,
+            color: Colors.green,
+            description: 'Scan network devices',
+            onTap: () => Get.to(() => IPScannerScreen()),
           ),
         ]),
       ),

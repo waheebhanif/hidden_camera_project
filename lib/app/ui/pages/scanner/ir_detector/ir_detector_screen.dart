@@ -77,7 +77,11 @@ class EnhancedIRDetectorScreen extends StatelessWidget {
       if (!controller.isInitialized.value) {
         return Container(
           height: Get.height * 0.4,
-          color: Colors.black,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Center(
             child: LoadingAnimationWidget.beat(
               color: kPrimaryButtonColor,
@@ -90,13 +94,64 @@ class EnhancedIRDetectorScreen extends StatelessWidget {
       return Container(
         height: Get.height * 0.4,
         width: double.infinity,
-        child: CameraPreview(
-          controller.cameraController!,
-          child: CustomPaint(
-            painter: ScanOverlayPainter(
-              isScanning: controller.isScanning.value,
-              irStrength: controller.irStrength.value,
-            ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: kPrimaryButtonColor, width: 2),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Stack(
+            children: [
+              Center(
+                child: CameraPreview(
+                  controller.cameraController!,
+                  child: CustomPaint(
+                    painter: ScanOverlayPainter(
+                      isScanning: controller.isScanning.value,
+                      irStrength: controller.irStrength.value,
+                    ),
+                  ),
+                ),
+              ),
+              if (controller.isScanning.value)
+                Positioned(
+                  bottom: 10,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'Scanning...',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.3),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -118,56 +173,56 @@ class EnhancedIRDetectorScreen extends StatelessWidget {
 
   Widget _buildControls() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(
-            child: Obx(() => ElevatedButton.icon(
-                  onPressed: controller.isInitialized.value
-                      ? (controller.isScanning.value
-                          ? controller.stopScanning
-                          : controller.startScanning)
-                      : null,
-                  icon: Icon(
-                    controller.isScanning.value ? Icons.stop : Icons.play_arrow,
-                    color: kWhite,
-                  ),
-                  label: Text(
-                    controller.isScanning.value
-                        ? 'Stop Scanning'
-                        : 'Start Scanning',
-                    style: Theme.of(Get.context!).textTheme.bodySmall,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        controller.isScanning.value ? Colors.red : Colors.blue,
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                  ),
-                )),
-          ),
-          SizedBox(width: 16),
-          Column(
-            mainAxisSize: MainAxisSize.min,
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(
-                '${controller.irStrength.value.toStringAsFixed(1)}',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: _getStrengthColor(controller.irStrength.value),
+              Expanded(
+                  child: ElevatedButton.icon(
+                onPressed: controller.isInitialized.value
+                    ? (controller.isScanning.value
+                        ? controller.stopScanning
+                        : controller.startScanning)
+                    : null,
+                icon: Icon(
+                  controller.isScanning.value ? Icons.stop : Icons.play_arrow,
+                  color: kWhite,
                 ),
+                label: Text(
+                  controller.isScanning.value
+                      ? 'Stop Scanning'
+                      : 'Start Scanning',
+                  style: Theme.of(Get.context!).textTheme.bodySmall,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      controller.isScanning.value ? Colors.red : Colors.blue,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                ),
+              )),
+              SizedBox(width: 16),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${controller.irStrength.value.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: _getStrengthColor(controller.irStrength.value),
+                    ),
+                  ),
+                  Text(
+                    'IR Strength',
+                    style: Theme.of(Get.context!).textTheme.headlineSmall,
+                  ),
+                ],
               ),
-              Text(
-                'IR Strength',
-                style: Theme.of(Get.context!).textTheme.headlineSmall,
-              ),
+              _buildIRMeter(),
             ],
           ),
-          _buildIRMeter(),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget _buildReadingsView() {
