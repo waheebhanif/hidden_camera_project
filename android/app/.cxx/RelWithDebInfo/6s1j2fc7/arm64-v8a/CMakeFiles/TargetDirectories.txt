@@ -1,0 +1,2 @@
+C:/My Projects/hidden_camera_detector/android/app/.cxx/RelWithDebInfo/6s1j2fc7/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/My Projects/hidden_camera_detector/android/app/.cxx/RelWithDebInfo/6s1j2fc7/arm64-v8a/CMakeFiles/rebuild_cache.dir
