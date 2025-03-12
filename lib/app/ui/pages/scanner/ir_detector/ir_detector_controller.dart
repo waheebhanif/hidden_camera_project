@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:camera/camera.dart';
 import 'package:hidden_camera_detector/app/ui/pages/scanner/ir_detector/ir_detector_screen.dart';
+import 'package:hidden_camera_detector/app/ui/pages/scanner/ir_detector/widgets.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 import 'package:audioplayers/audioplayers.dart';

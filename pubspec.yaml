@@ -26,13 +26,13 @@ dependencies:
   cloud_firestore:
   sensors_plus:
   camera: ^0.11.0+2
-  permission_handler: ^10.2.0
+  permission_handler: ^11.4.0
   intl: ^0.20.1
   flutter_animation_progress_bar: ^2.3.1
   loading_animation_widget: ^1.3.0
   device_info_plus: ^11.2.0
   ir_sensor_plugin: ^0.3.1
-  audioplayers: ^6.1.0
+  audioplayers: 
   network_info_plus: ^6.1.2
   wifi_scan: ^0.4.1+1
   dart_ping: ^9.0.1
@@ -68,9 +68,9 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/icons/
+    # - assets/icons/
     - assets/image/
-    - assets/animation/
+    # - assets/animation/
     - assets/sound/
   uses-material-design: true
 
